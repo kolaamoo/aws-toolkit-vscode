@@ -74,6 +74,7 @@ export async function invokeRemoteRestApi(params: { outputChannel: vscode.Output
 
         const loadScripts = ExtensionUtilities.getScriptsForHtml(['invokeRemoteRestApiVue.js'], view.webview)
         const loadLibs = ExtensionUtilities.getLibrariesForHtml(['vue.min.js'], view.webview)
+        const loadStylesheets = ExtensionUtilities.getCssForHtml(['submitFeedback.css'], view.webview)
 
         // something is wrong if the paths aren't defined...
         const sortResources = (a: [string, Resource], b: [string, Resource]) => a[1].path!.localeCompare(b[1].path!)
@@ -87,6 +88,7 @@ export async function invokeRemoteRestApi(params: { outputChannel: vscode.Output
                 Resources: new Map([...resources].sort(sortResources)),
                 Scripts: loadScripts,
                 Libraries: loadLibs,
+                Stylesheets: loadStylesheets,
             }),
         })
 
