@@ -31,7 +31,7 @@ export async function getSamProjectDirPathForFile(filepath: string): Promise<str
     return path.dirname(filepath)
 }
 
-// Add create debugging manifest/requirements.txt containing ptvsd
+// Add create debugging manifest/requirements.txt containing debugpy
 async function makePythonDebugManifest(params: {
     samProjectCodeRoot: string
     outputDir: string
@@ -42,9 +42,9 @@ async function makePythonDebugManifest(params: {
         manifestText = await readFileAsString(manfestPath)
     }
     getLogger().debug(`pythonCodeLensProvider.makePythonDebugManifest params: ${JSON.stringify(params, undefined, 2)}`)
-    // TODO: Make this logic more robust. What if other module names include ptvsd?
-    if (!manifestText.includes('ptvsd')) {
-        manifestText += `${os.EOL}ptvsd>4.2,<5`
+    // TODO: Make this logic more robust. What if other module names include debugpy?
+    if (!manifestText.includes('debugpy')) {
+        manifestText += `${os.EOL}debugpy>=1.0,<2`
         const debugManifestPath = path.join(params.outputDir, 'debug-requirements.txt')
         await writeFile(debugManifestPath, manifestText)
 
@@ -80,7 +80,9 @@ export async function makePythonDebugConfig(config: SamLaunchRequestArgs): Promi
         debugPort = await getStartPort()
 
         config.debuggerPath = ext.context.asAbsolutePath(join('resources', 'debugger'))
-        config.debugArgs = [`/tmp/lambci_debug_files/py_debug_wrapper.py --host 0.0.0.0 --port ${debugPort} --wait`]
+        config.debugArgs = [
+            `/tmp/lambci_debug_files/py_debug_wrapper.py --log-to /tmp --listen 0.0.0.0:${debugPort} --wait-for-client`,
+        ]
 
         manifestPath = await makePythonDebugManifest({
             samProjectCodeRoot: config.codeRoot,
@@ -151,7 +153,10 @@ export async function waitForPythonDebugAdapter(debugPort: number, timeout: Time
         } catch (err) {
             logger.verbose('Error while testing: %O', err as Error)
         } finally {
-            await tester.disconnect()
+            // TODO: can we do this? there is potential race between debugger attaching and container dying due to
+            // heartbeat spinning up the initial connection to debugpy
+            // TODO: do we actually need the heartbeat system?
+            // await tester.disconnect()
         }
 
         if (!debugServerAvailable) {

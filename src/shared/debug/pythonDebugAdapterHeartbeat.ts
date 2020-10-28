@@ -53,6 +53,7 @@ export class PythonDebugAdapterHeartbeat {
             this.socket.on('data', data => {
                 clearTimeout(timeout)
                 this.logger.verbose('Data received from Debug Adapter: %s', data.toString())
+                // we don't send a message; we assume that we always receive a telemetry event from the debugger
                 resolve(true)
             })
 
@@ -61,15 +62,6 @@ export class PythonDebugAdapterHeartbeat {
                 this.logger.verbose('Error writing to Debug Adapter: %O', err)
                 resolve(false)
             })
-
-            // Send a blank request message, serving as a no-op.
-            // If we get a response, we know the Adapter is up and running.
-            // See Base protocol: https://microsoft.github.io/debug-adapter-protocol/overview
-            const json = JSON.stringify({
-                type: 'request',
-            })
-            const writeResult = this.socket.write(`Content-Length: ${json.length}\r\n\r\n${json}`)
-            this.logger.verbose(`Data written to Debug Adapter, write result: ${writeResult}`)
         })
     }
 
