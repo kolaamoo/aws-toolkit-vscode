@@ -87,10 +87,10 @@ function assertEqualLaunchConfigs(actual: SamLaunchRequestArgs, expected: SamLau
     // Remove noisy properties before doing a deep-compare.
     for (const o of [actual, expected]) {
         delete o.manifestPath
-        delete o.documentUri
-        delete o.templatePath
-        delete o.workspaceFolder
-        delete o.codeRoot
+        delete (o as any).documentUri
+        delete (o as any).templatePath
+        delete (o as any).workspaceFolder
+        delete (o as any).codeRoot
         delete (o as any).localRoot // Node-only
         delete (o as any).debuggerPath // Dotnet-only
     }
