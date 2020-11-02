@@ -232,7 +232,7 @@ export function makeTypescriptCodeLensProvider(): vscode.CodeLensProvider {
             token: vscode.CancellationToken
         ): Promise<vscode.CodeLens[]> => {
             const handlers = await tsCodelens.getLambdaHandlerCandidates(document)
-            logger.debug('makeTypescriptCodeLensProvider handlers:', JSON.stringify(handlers, undefined, 2))
+            logger.debug('makeTypescriptCodeLensProvider handlers: %O', handlers)
 
             return makeCodeLenses({
                 document,
